@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 
 class WeekViewTimelinePage<T extends FloatingCalendarEvent> extends StatefulWidget {
   const WeekViewTimelinePage({
+    required this.weekPicker,
     required this.overlayBuilder,
     required this.weekPickerController,
     required this.weekPickerKey,
@@ -41,6 +42,7 @@ class WeekViewTimelinePage<T extends FloatingCalendarEvent> extends StatefulWidg
   final GlobalKey weekPickerKey;
   final Widget Function(Widget child) overlayBuilder;
   final PageController weekPickerController;
+  final Widget weekPicker;
 
   final void Function(
     List<AllDayCalendarEvent> visibleEvents,
@@ -139,62 +141,79 @@ class _WeekViewTimelinePageState<T extends FloatingCalendarEvent> extends State<
     return Stack(
       fit: StackFit.expand,
       children: [
-        Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: 30,
-          ),
-          // padding: EdgeInsets.only(
-          //   left: timeScaleWidth ,
-          // ),
-          color: Colors.transparent, // Needs for hitTesting
-          child: PageView.builder(
-            key: _daysRowKey,
-            controller: _daysRowController,
-            physics: const NeverScrollableScrollPhysics(),
-            itemBuilder: (context, pageIndex) {
-              final weekDays = _getWeekDays(pageIndex);
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: 16,
+        PageView.builder(
+          key: _daysRowKey,
+          controller: _daysRowController,
+          physics: const NeverScrollableScrollPhysics(),
+          itemBuilder: (context, pageIndex) {
+            final weekDays = _getWeekDays(pageIndex);
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(
+                  height: 16,
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        offset: const Offset(0, 1), // changes position of shadow
+                      ),
+                    ],
                   ),
-                  _daysRow(weekDays),
-                  SizedBox(
-                    height: 8,
+                  child: Column(
+                    children: [
+                      const SizedBox(
+                        height: 8,
+                      ),
+                      widget.weekPicker,
+                      const SizedBox(
+                        height: 8,
+                      ),
+                      _daysRow(weekDays),
+                      const SizedBox(
+                        height: 8,
+                      ),
+                    ],
                   ),
-                  _buildAllDayEventsList(weekDays, timeScaleWidth),
-                ],
-              );
-            },
-          ),
+                ),
+                const SizedBox(
+                  height: 8,
+                ),
+                _buildAllDayEventsList(weekDays, timeScaleWidth),
+              ],
+            );
+          },
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Visibility(
-              visible: false,
-              maintainAnimation: true,
-              maintainState: true,
-              maintainSize: true,
-              child: Padding(
-                padding: EdgeInsets.only(left: timeScaleWidth),
-                child: Column(
-                  children: [
-                    _daysRow(weekDays),
-                    _buildAllDayEventsList(weekDays, timeScaleWidth),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 8),
+            // Visibility(
+            //   visible: false,
+            //   maintainAnimation: true,
+            //   maintainState: true,
+            //   maintainSize: true,
+            //   child: Padding(
+            //     padding: EdgeInsets.only(left: timeScaleWidth),
+            //     child: Column(
+            //       children: [
+            //         _daysRow(weekDays),
+            //         _buildAllDayEventsList(weekDays, timeScaleWidth),
+            //       ],
+            //     ),
+            //   ),
+            // ),
+            const SizedBox(height: 240),
             Padding(
-              padding: EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8.0),
               child: Text(
                 "${widget.daysRowTheme.weekdayFormatter(selectedDay)}"
                 " ${widget.daysRowTheme.numberFormatter(selectedDay)}"
                 " ${DateFormat('MMMM').format(selectedDay)},${selectedDay.year}",
-                style: TextStyle(color: Colors.black54, fontSize: 14, fontWeight: FontWeight.bold),
+                style: const TextStyle(color: Colors.black54, fontSize: 14, fontWeight: FontWeight.bold),
               ),
             ),
             Expanded(
@@ -350,103 +369,102 @@ class _WeekViewTimelinePageState<T extends FloatingCalendarEvent> extends State<
     if (widget.dayRowBuilder != null) {
       //  currentIndex = days.indexWhere((dayDate) => DateUtils.isSameDay(dayDate, _now));
 
-      return Container(
-        padding: EdgeInsets.symmetric(horizontal: 8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 1,
-              blurRadius: 3,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 20,
-                  height: 20,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    color: Colors.cyan,
-                  ),
-                  child: InkWell(
-                    onTap: () {
-                      widget.controller.prev();
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.arrow_back_ios_sharp,
-                          color: Colors.white,
-                          size: 12,
-                        ),
-                      ],
-                    ),
-                  ),
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              SizedBox(
+                width: 12,
+              ),
+              Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: const Color(0xff3DB3E2),
                 ),
-                SizedBox(
-                  width: 4,
-                ),
-                ...days.map(
-                  (dayDate) => Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        if (dayDate.weekday == DateTime.friday || dayDate.weekday == DateTime.saturday) {
-                        } else {
-                          setState(() {
-                            selectedDay = dayDate;
-                          });
-                        }
-                        //  currentIndex = days.indexOf(dayDate); // Get the index of the current dayDate
-                        //  print("day date ${dayDate} index ${currentIndex}");
-                      },
-                      child: widget.dayRowBuilder!(
-                        context,
-                        dayDate,
-                        selectedDay.year == dayDate.year && selectedDay.month == dayDate.month && selectedDay.day == dayDate.day,
-                        widget.events.where((element) => element.start.isAfter(dayDate) && element.start.isBefore(dayDate)).toList(),
+                child: InkWell(
+                  onTap: () {
+                    widget.controller.prev();
+                    _daysRowController.previousPage(
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  },
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.arrow_back_ios_sharp,
+                        color: Colors.white,
+                        size: 12,
                       ),
-                    ),
+                    ],
                   ),
                 ),
-                SizedBox(
-                  width: 4,
-                ),
-                Container(
-                  width: 20,
-                  height: 20,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    color: Colors.cyan,
-                  ),
+              ),
+              const SizedBox(
+                width: 4,
+              ),
+              ...days.map(
+                (dayDate) => Expanded(
                   child: InkWell(
                     onTap: () {
-                      widget.controller.next();
+                      if (dayDate.weekday == DateTime.friday || dayDate.weekday == DateTime.saturday) {
+                      } else {
+                        setState(() {
+                          selectedDay = dayDate;
+                        });
+                      }
+                      //  currentIndex = days.indexOf(dayDate); // Get the index of the current dayDate
+                      //  print("day date ${dayDate} index ${currentIndex}");
                     },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.arrow_forward_ios_sharp,
-                          color: Colors.white,
-                          size: 12,
-                        ),
-                      ],
+                    child: widget.dayRowBuilder!(
+                      context,
+                      dayDate,
+                      selectedDay.year == dayDate.year && selectedDay.month == dayDate.month && selectedDay.day == dayDate.day,
+                      widget.events.where((element) => element.start.isAfter(dayDate) && element.start.isBefore(dayDate)).toList(),
                     ),
                   ),
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+              const SizedBox(
+                width: 4,
+              ),
+              Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: const Color(0xff3DB3E2),
+                ),
+                child: InkWell(
+                  onTap: () {
+                    widget.controller.next();
+                    _daysRowController.nextPage(
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  },
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.arrow_forward_ios_sharp,
+                        color: Colors.white,
+                        size: 12,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 12,
+              ),
+            ],
+          ),
+        ],
       );
     }
 
@@ -486,13 +504,13 @@ class _WeekViewTimelinePageState<T extends FloatingCalendarEvent> extends State<
   Widget _stripesRow(List<DateTime> days) => Row(
         children: List.generate(
           days.length,
-          (index) => Expanded(
+          (index) => const Expanded(
             child: ColoredBox(
               color: Colors.white,
               // index.isOdd
               //     ? Colors.transparent
               //     : Colors.grey.withOpacity(0.1),
-              child: const SizedBox.expand(),
+              child: SizedBox.expand(),
             ),
           ),
           growable: false,

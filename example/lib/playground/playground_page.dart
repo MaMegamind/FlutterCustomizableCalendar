@@ -1,8 +1,8 @@
 import 'package:example/playground/bloc/list_cubit/list_cubit.dart';
-import 'package:example/playground/image_calendar_event.dart';
-import 'package:flutter/material.dart';
 import 'package:example/playground/events_list_page.dart';
+import 'package:example/playground/image_calendar_event.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_customizable_calendar/flutter_customizable_calendar.dart';
 import 'package:intl/intl.dart';
@@ -13,20 +13,17 @@ class PlaygroundPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final today =
-        DateUtils.dateOnly(DateTime.now().subtract(Duration(days: 1)));
+    final today = DateUtils.dateOnly(DateTime.now().subtract(Duration(days: 1)));
     final breaks = List.generate(
       7,
       (index) {
-        final dayDate =
-            DateUtils.addDaysToDate(today, index - today.weekday + 1);
+        final dayDate = DateUtils.addDaysToDate(today, index - today.weekday + 1);
         final isSunday = dayDate.weekday == DateTime.sunday;
 
         return Break(
           id: 'Break $index',
           start: isSunday ? dayDate : dayDate.add(const Duration(hours: 13)),
-          duration:
-              isSunday ? const Duration(days: 1) : const Duration(hours: 1),
+          duration: isSunday ? const Duration(days: 1) : const Duration(hours: 1),
           color: Colors.grey.withOpacity(0.25),
         );
       },
@@ -147,8 +144,7 @@ class CalendarPage<T extends FloatingCalendarEvent> extends StatefulWidget {
   State<CalendarPage<T>> createState() => _CalendarPageState<T>();
 }
 
-class _CalendarPageState<T extends FloatingCalendarEvent>
-    extends State<CalendarPage<T>> with SingleTickerProviderStateMixin {
+class _CalendarPageState<T extends FloatingCalendarEvent> extends State<CalendarPage<T>> with SingleTickerProviderStateMixin {
   final _daysViewController = DaysViewController(
     initialDate: _initialDate,
     endDate: _endDate,
@@ -340,8 +336,7 @@ class _CalendarPageState<T extends FloatingCalendarEvent>
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Text(
-                              '${monthDateTimeFormatter.format(event.start)} - '
+                          Text('${monthDateTimeFormatter.format(event.start)} - '
                               '${monthDateTimeFormatter.format(event.end)}'),
                         ],
                       ),
@@ -400,9 +395,7 @@ class _CalendarPageState<T extends FloatingCalendarEvent>
                   icon: const Icon(Icons.arrow_back_ios),
                 ),
                 Text(
-                  currentTime.year != DateTime.now().year
-                      ? DateFormat('MMMM yyyy').format(currentTime)
-                      : DateFormat('MMMM').format(currentTime),
+                  currentTime.year != DateTime.now().year ? DateFormat('MMMM yyyy').format(currentTime) : DateFormat('MMMM').format(currentTime),
                   style: _textStyle.copyWith(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -526,7 +519,7 @@ class _CalendarPageState<T extends FloatingCalendarEvent>
             decoration: BoxDecoration(
               color: Colors.white,
               image: DecorationImage(
-                image: AssetImage(event.imgAsset),
+                image: AssetImage("${event.imgAsset}"),
                 fit: BoxFit.cover,
                 alignment: Alignment.center,
               ),
@@ -535,7 +528,7 @@ class _CalendarPageState<T extends FloatingCalendarEvent>
               color: Colors.black.withOpacity(0.1),
               padding: const EdgeInsets.all(4),
               child: Text(
-                event.title,
+                "${event.title}",
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: Colors.white,
@@ -775,10 +768,7 @@ class _CalendarPageState<T extends FloatingCalendarEvent>
   }
 
   SaverConfig _saverConfig() => SaverConfig(
-        child: Container(
-            color: Colors.transparent,
-            padding: EdgeInsets.all(15),
-            child: Icon(Icons.done)),
+        child: Container(color: Colors.transparent, padding: EdgeInsets.all(15), child: Icon(Icons.done)),
       );
 
   TextStyle get _textStyle => TextStyle(
@@ -786,8 +776,7 @@ class _CalendarPageState<T extends FloatingCalendarEvent>
         color: Colors.grey.shade700,
       );
 
-  DisplayedPeriodPickerTheme get _periodPickerTheme =>
-      DisplayedPeriodPickerTheme(
+  DisplayedPeriodPickerTheme get _periodPickerTheme => DisplayedPeriodPickerTheme(
         height: 40,
         foregroundColor: _theme.primaryColor,
         shape: RoundedRectangleBorder(

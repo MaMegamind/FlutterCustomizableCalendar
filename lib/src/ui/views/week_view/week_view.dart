@@ -63,8 +63,7 @@ class WeekView<T extends FloatingCalendarEvent> extends StatefulWidget {
   final Map<Type, EventBuilder> eventBuilders;
 
   /// Overrides the default behavior of the event view's long press
-  final void Function(LongPressStartDetails details, T event)?
-      overrideOnEventLongPress;
+  final void Function(LongPressStartDetails details, T event)? overrideOnEventLongPress;
 
   /// The month picker customization params
   /// Works only if [weekPickerBuilder] is null
@@ -155,8 +154,7 @@ class WeekView<T extends FloatingCalendarEvent> extends StatefulWidget {
   State<WeekView<T>> createState() => _WeekViewState<T>();
 }
 
-class _WeekViewState<T extends FloatingCalendarEvent> extends State<WeekView<T>>
-    with SingleTickerProviderStateMixin {
+class _WeekViewState<T extends FloatingCalendarEvent> extends State<WeekView<T>> with SingleTickerProviderStateMixin {
   final _overlayKey = GlobalKey<DraggableEventOverlayState<T>>();
   final _elevatedEvent = FloatingEventNotifier<T>();
   PageController? _weekPickerController;
@@ -179,33 +177,22 @@ class _WeekViewState<T extends FloatingCalendarEvent> extends State<WeekView<T>>
 
   double get _hourExtent => widget.timelineTheme.timeScaleTheme.hourExtent;
 
-  DateTimeRange get _displayedWeek =>
-      widget.controller.state.displayedWeek(widget.controller.visibleDays);
+  DateTimeRange get _displayedWeek => widget.controller.state.displayedWeek(widget.controller.visibleDays);
 
-  DateTimeRange get _initialWeek =>
-      _initialDate.weekRange(widget.controller.visibleDays);
+  DateTimeRange get _initialWeek => _initialDate.weekRange(widget.controller.visibleDays);
 
   RenderBox? _getTimelineBox(DateTimeRange key) {
-    return WeekViewKeys.timeline[key]?.currentContext?.findRenderObject()
-        as RenderBox?;
+    return WeekViewKeys.timeline[key]?.currentContext?.findRenderObject() as RenderBox?;
   }
 
-  RenderBox? _getLayoutBox(DateTime dayDate) =>
-      WeekViewKeys.layouts[dayDate]?.currentContext?.findRenderObject()
-          as RenderBox?;
+  RenderBox? _getLayoutBox(DateTime dayDate) => WeekViewKeys.layouts[dayDate]?.currentContext?.findRenderObject() as RenderBox?;
 
-  RenderBox? _getEventBox(T event) =>
-      WeekViewKeys.events[event]?.currentContext?.findRenderObject()
-          as RenderBox?;
+  RenderBox? _getEventBox(T event) => WeekViewKeys.events[event]?.currentContext?.findRenderObject() as RenderBox?;
 
-  List<AllDayCalendarEvent> get _allDayEvents =>
-      widget.events.whereType<AllDayCalendarEvent>().toList();
+  List<AllDayCalendarEvent> get _allDayEvents => widget.events.whereType<AllDayCalendarEvent>().toList();
 
   List<T> get _events {
-    return widget.events
-        .where((element) => element is! AllDayCalendarEvent)
-        .toList()
-        .cast<T>();
+    return widget.events.where((element) => element is! AllDayCalendarEvent).toList().cast<T>();
   }
 
   void _stopTimelineScrolling() {
@@ -230,14 +217,12 @@ class _WeekViewState<T extends FloatingCalendarEvent> extends State<WeekView<T>>
     const detectionArea = 25;
     const moveDistance = 25;
 
-    if (fingerPosition.dy > timelineBox.size.height - detectionArea &&
-        timelineScrollOffset < timelineScrollPosition.maxScrollExtent) {
+    if (fingerPosition.dy > timelineBox.size.height - detectionArea && timelineScrollOffset < timelineScrollPosition.maxScrollExtent) {
       timelineScrollOffset = min(
         timelineScrollOffset + moveDistance,
         timelineScrollPosition.maxScrollExtent,
       );
-    } else if (fingerPosition.dy < detectionArea &&
-        timelineScrollOffset > timelineScrollPosition.minScrollExtent) {
+    } else if (fingerPosition.dy < detectionArea && timelineScrollOffset > timelineScrollPosition.minScrollExtent) {
       timelineScrollOffset = max(
         timelineScrollOffset - moveDistance,
         timelineScrollPosition.minScrollExtent,
@@ -252,11 +237,9 @@ class _WeekViewState<T extends FloatingCalendarEvent> extends State<WeekView<T>>
 
       // Checking if scroll is finished
       if (!weekPickerPosition.isScrollingNotifier.value) {
-        if (fingerPosition.dx > timelineBox.size.width - detectionArea &&
-            weekPickerPosition.pixels < weekPickerPosition.maxScrollExtent) {
+        if (fingerPosition.dx > timelineBox.size.width - detectionArea && weekPickerPosition.pixels < weekPickerPosition.maxScrollExtent) {
           widget.controller.next();
-        } else if (fingerPosition.dx < detectionArea &&
-            weekPickerPosition.pixels > weekPickerPosition.minScrollExtent) {
+        } else if (fingerPosition.dx < detectionArea && weekPickerPosition.pixels > weekPickerPosition.minScrollExtent) {
           widget.controller.prev();
         }
       }
@@ -287,10 +270,9 @@ class _WeekViewState<T extends FloatingCalendarEvent> extends State<WeekView<T>>
   @override
   void initState() {
     super.initState();
-    final initialPage =
-        _displayedWeek.start.difference(_initialWeek.start).inWeeks(
-              widget.controller.visibleDays,
-            );
+    final initialPage = _displayedWeek.start.difference(_initialWeek.start).inWeeks(
+          widget.controller.visibleDays,
+        );
     _weekPickerController = PageController(
       initialPage: initialPage,
     );
@@ -301,9 +283,33 @@ class _WeekViewState<T extends FloatingCalendarEvent> extends State<WeekView<T>>
     return BlocListener<WeekViewController, WeekViewState>(
       bloc: widget.controller,
       listener: (context, state) {
-        final weeksOffset = state.displayedWeek(widget.controller.visibleDays).start.difference(_initialWeek.start).inWeeks(widget.controller.visibleDays);
+        // WeekViewMonthChanged
 
-        if (state is WeekViewCurrentWeekIsSet) {
+        var weeksOffset = 0;
+        if (state is WeekViewMonthChanged) {
+          // Calculate the weeks offset when month is changed
+          final currentMonthStart = DateTime(state.focusedDate.year, state.focusedDate.month);
+          final initialMonthStart = DateTime(_initialWeek.start.year, _initialWeek.start.month);
+          weeksOffset = currentMonthStart.difference(initialMonthStart).inDays ~/ 7;
+          print("weeksOffset : WeekViewMonthChanged ${weeksOffset}");
+        } else {
+          weeksOffset =
+              state.displayedWeek(widget.controller.visibleDays).start.difference(_initialWeek.start).inWeeks(widget.controller.visibleDays);
+          print("weeksOffset : ${weeksOffset}");
+        }
+        if (state is WeekViewMonthChanged) {
+          // todo :  adjust page view with month
+
+          Future.wait([
+            _weekPickerController!.animateToPage(
+              weeksOffset,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.linearToEaseOut,
+            ),
+          ]).whenComplete(() {
+            setState(() {});
+          });
+        } else if (state is WeekViewCurrentWeekIsSet) {
           Future.wait([
             if (weeksOffset != _weekPickerController?.page?.round())
               _weekPickerController!.animateToPage(
@@ -329,8 +335,7 @@ class _WeekViewState<T extends FloatingCalendarEvent> extends State<WeekView<T>>
             }
             setState(() {});
           });
-        } else if (state is WeekViewNextWeekSelected ||
-            state is WeekViewPrevWeekSelected) {
+        } else if (state is WeekViewNextWeekSelected || state is WeekViewPrevWeekSelected) {
           print("weeksOffset : WeekViewNextWeekSelected ${weeksOffset}");
           Future.wait([
             _weekPickerController!.animateToPage(
@@ -339,19 +344,18 @@ class _WeekViewState<T extends FloatingCalendarEvent> extends State<WeekView<T>>
               curve: Curves.linearToEaseOut,
             ),
           ]).whenComplete(() {
-            setState(() {}
-            );
+            setState(() {});
           });
         }
       },
       child: Column(
         children: [
-          _weekPicker(),
+          // _weekPicker(),
           Expanded(
             child: BlocBuilder<WeekViewController, WeekViewState>(
               bloc: widget.controller,
               builder: (context, state) {
-                return _weekTimeline(state);
+                return _weekTimeline(state, _weekPicker());
               },
             ),
           ),
@@ -381,9 +385,7 @@ class _WeekViewState<T extends FloatingCalendarEvent> extends State<WeekView<T>>
               context,
               widget.events
                   .where(
-                    (element) =>
-                        element.start.isAfter(range.start) &&
-                        element.start.isBefore(range.end),
+                    (element) => element.start.isAfter(range.start) && element.start.isBefore(range.end),
                   )
                   .toList()
                   .cast<T>(),
@@ -395,21 +397,14 @@ class _WeekViewState<T extends FloatingCalendarEvent> extends State<WeekView<T>>
             period: DisplayedPeriod(days.first, days.last),
             theme: widget.weekPickerTheme,
             reverseAnimation: state.reverseAnimation,
-            onLeftButtonPressed: state.focusedDate
-                    .isSameWeekAs(widget.controller.visibleDays, _initialDate)
-                ? null
-                : widget.controller.prev,
-            onRightButtonPressed: state.focusedDate
-                    .isSameWeekAs(widget.controller.visibleDays, _endDate)
-                ? null
-                : widget.controller.next,
+            onLeftButtonPressed: state.focusedDate.isSameWeekAs(widget.controller.visibleDays, _initialDate) ? null : widget.controller.prev,
+            onRightButtonPressed: state.focusedDate.isSameWeekAs(widget.controller.visibleDays, _endDate) ? null : widget.controller.next,
           );
         },
-        buildWhen: (previous, current) => !current.focusedDate
-            .isSameWeekAs(widget.controller.visibleDays, previous.focusedDate),
+        buildWhen: (previous, current) => !current.focusedDate.isSameWeekAs(widget.controller.visibleDays, previous.focusedDate),
       );
 
-  Widget _weekTimeline(WeekViewState state) {
+  Widget _weekTimeline(WeekViewState state, Widget weekPicker) {
     final theme = widget.timelineTheme;
 
     return LayoutBuilder(
@@ -417,8 +412,7 @@ class _WeekViewState<T extends FloatingCalendarEvent> extends State<WeekView<T>>
         return WeekViewTimelinePage(
           weekPickerController: _weekPickerController!,
           weekPickerKey: _weekPickerKey,
-          pageViewPhysics:
-              widget.pageViewPhysics ?? const NeverScrollableScrollPhysics(),
+          pageViewPhysics: widget.pageViewPhysics ?? const NeverScrollableScrollPhysics(),
           timelineKey: (days) {
             final timeRange = DateTimeRange(
               start: days.first,
@@ -470,10 +464,7 @@ class _WeekViewState<T extends FloatingCalendarEvent> extends State<WeekView<T>>
               onDropped: widget.onDiscardChanges,
               onChanged: widget.onEventUpdated,
               getTimelineBox: () {
-                final pageIndex = state.focusedDate
-                        .difference(widget.controller.initialDate)
-                        .inDays ~/
-                    widget.controller.visibleDays;
+                final pageIndex = state.focusedDate.difference(widget.controller.initialDate).inDays ~/ widget.controller.visibleDays;
 
                 return _getTimelineBox(
                   DateUtils.addDaysToDate(
@@ -488,6 +479,7 @@ class _WeekViewState<T extends FloatingCalendarEvent> extends State<WeekView<T>>
               child: child,
             );
           },
+          weekPicker: weekPicker,
         );
       },
     );

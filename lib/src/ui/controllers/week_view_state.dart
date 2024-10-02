@@ -16,8 +16,7 @@ abstract class WeekViewState extends Equatable {
 
   /// The week range which is currently displayed in the week view.
 
-  DateTimeRange displayedWeek(int visibleDays) =>
-      focusedDate.weekRange(visibleDays);
+  DateTimeRange displayedWeek(int visibleDays) => focusedDate.weekRange(visibleDays);
 
   @override
   List<Object?> get props => [
@@ -44,12 +43,17 @@ class WeekViewCurrentWeekIsSet extends WeekViewState {
 /// The state of [WeekViewController] when the previous week is selected.
 class WeekViewPrevWeekSelected extends WeekViewState {
   /// Creates [WeekViewPrevWeekSelected] instance.
-  const WeekViewPrevWeekSelected({required super.focusedDate})
-      : super(reverseAnimation: true);
+  const WeekViewPrevWeekSelected({required super.focusedDate}) : super(reverseAnimation: true);
 }
 
 /// The state of [WeekViewController] when the next week is selected.
 class WeekViewNextWeekSelected extends WeekViewState {
   /// Creates [WeekViewNextWeekSelected] instance.
   const WeekViewNextWeekSelected({required super.focusedDate});
+}
+
+/// The state of [WeekViewController] when the month is changed.
+class WeekViewMonthChanged extends WeekViewState {
+  /// Creates [WeekViewMonthChanged] instance.
+  const WeekViewMonthChanged({required super.focusedDate}) : super(reverseAnimation: true);
 }
